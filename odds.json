@@ -1,0 +1,14 @@
+{
+  "_updated": "基线·与内嵌同步",
+  "_note": "此文件由阿里云 cron(API-Football)每30min覆盖机械层(prob/move/os/oht/oou)，LLM深度层覆盖 sharp。页面每90s拉取。",
+  "ca|ba":     {"winner":"ca","prob":[55,27,18],"conf":"中","move":"赛前加拿大稳居主热(-120)","sharp":"无明显聪明钱反向","os":[1,0],"oht":"","oou":"under"},
+  "us|py":     {"winner":"us","prob":[51,28,21],"conf":"中","move":"美国小热(-105)","sharp":"市场仅~51%偏保守,低估美国","os":[2,1],"oht":"us","oou":"over"},
+  "qa|ch":     {"winner":"ch","prob":[7,14,79],"conf":"高","move":"瑞士收窄变短(资金压瑞士),卡塔尔走高","sharp":"Pinnacle去水79.9%+Kalshi 81%双印证,无RLM,四场最干净的共识","os":[0,2],"oht":"ch","oou":"under"},
+  "br|ma":     {"winner":"br","prob":[58,24,18],"conf":"中","move":"巴西带重伤盘口反收窄(-150→-175),资金净流入巴西","sharp":"⚠公众追名气队推动(非聪明钱);去水仅58%非碾压、平局24%偏高,标价与实力最暧昧","os":[1,0],"oht":"","oou":"under"},
+  "ht|gb-sct": {"winner":"gb-sct","prob":[17,21,62],"conf":"中","move":"苏格兰被卖走高(-270→-195/-225),海地变长","sharp":"⚠弱RLM:91%票押苏但盘口反松动,聪明钱不愿高价追苏(单一源,打折看)","os":[0,1],"oht":"gb-sct","oou":"under"},
+  "au|tr":     {"winner":"tr","prob":[18,26,56],"conf":"中","move":"土耳其基本持平略松,幅度小","sharp":"无RLM·顺向steam:票89%+钱89%全押土(公众与聪明钱合流);但去水仅56%+平局25%,分差不大","os":[0,1],"oht":"tr","oou":"under"},
+  "de|cw":     {"winner":"de","prob":[94,5,1],"conf":"高","move":"德国已极短价(1.05)无空间,焦点在让球盘-3.5","sharp":"模型给德国净胜≥3球88-91%,让球盘偏德国价值","os":[3,0],"oht":"de","oou":"over"},
+  "nl|jp":     {"winner":"nl","prob":[48,26,26],"conf":"低","move":"荷兰被压到pick'em(2.00),盘口朝日本收窄","sharp":"⚠疑似RLM:反公众,聪明钱偏日本不败(+让球);名义favorite被压到掷硬币","os":[1,0],"oht":"","oou":"under"},
+  "ci|ec":     {"winner":"ec","prob":[26,34,40],"conf":"低","move":"厄瓜多尔收窄(+145→+135),非洲杯冠军科特迪瓦竟是让分方","sharp":"偏小球/平局,平局去水34%极高,厄防线被定价为唯一区分点","os":[0,1],"oht":"","oou":"under"},
+  "se|tn":     {"winner":"se","prob":[48,28,23],"conf":"中","move":"瑞典温和收窄(-107→-116),锐盘BetOnline背书,非协同steam","sharp":"无RLM,聪明钱偏瑞典+小球(Under2.5压-164);去水主胜仅48%,平局不低","os":[1,0],"oht":"se","oou":"under"}
+}

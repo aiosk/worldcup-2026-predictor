@@ -1,0 +1,12 @@
+page {
+  --bg:#0b0f14; --bg2:#121821; --card:#161e29; --card2:#1b2533;
+  --line:#243042; --txt:#e6edf5; --mut:#8a97a8; --mut2:#5f6c7d;
+  --grn:#1fd1a0; --red:#ff5a5f; --yel:#ffc24b;
+  --blu:#4d9fff; --pur:#9b87ff; --acc:#1fd1a0;
+  --r:14px;
+  background:#0b0f14;
+  color:#e6edf5;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  line-height:1.5;
+}
+view, text { box-sizing:border-box; }

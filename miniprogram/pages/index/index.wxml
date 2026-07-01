@@ -1,0 +1,229 @@
+<!-- 跑马灯免责声明（吸附顶部） -->
+<view class="marquee">
+  <view class="mqt">
+    <text>⚠ 本小程序内容为虚构内容，仅供娱乐，请勿采信。</text>
+    <text>⚠ 本小程序内容为虚构内容，仅供娱乐，请勿采信。</text>
+  </view>
+</view>
+
+<!-- ===== 比赛卡片模板 ===== -->
+<template name="matchCard">
+  <view class="mc {{vm.slim ? 'slim' : ''}}" data-a="{{vm.a}}" data-b="{{vm.b}}" data-i="{{vm.iso}}" bindtap="openSheet">
+    <view class="meta">
+      <text class="grp">{{vm.g}}组</text>
+      <text>{{vm.day}} {{vm.time}}</text>
+      <text class="venue">· {{vm.v}}</text>
+      <text class="st {{vm.stc}}">{{vm.stLbl}}</text>
+    </view>
+    <view class="row">
+      <view class="team"><text class="flag">{{vm.fA}}</text><text class="nm">{{vm.zhA}}</text></view>
+      <view class="score" wx:if="{{vm.hasScore}}">{{vm.sA}} <text class="vs">-</text> {{vm.sB}}<text class="sub">{{vm.scoreSub}}</text></view>
+      <view class="score" wx:else><text class="vs">VS</text><text class="sub">{{vm.time}}</text></view>
+      <view class="team r"><text class="nm">{{vm.zhB}}</text><text class="flag">{{vm.fB}}</text></view>
+    </view>
+
+    <!-- 简版迷你预测 -->
+    <view class="pmini" wx:if="{{vm.slim && vm.hasPred}}">
+      <text class="mn">{{vm.miniNine}}</text>
+      <text class="om" wx:if="{{vm.miniMarket}}">{{vm.miniMarket}}</text>
+      <text class="oup" wx:if="{{vm.miniUpset}}">{{vm.miniUpset}}</text>
+      <text class="om" wx:if="{{vm.dv}}">⚡</text>
+      <text wx:if="{{vm.mark}}" class="mk {{vm.mark.cls}}">{{vm.mark.txt}}</text>
+    </view>
+
+    <!-- 全版三轨徽章 -->
+    <view class="p3" wx:if="{{!vm.slim && vm.hasPred}}">
+      <view class="p3h"><text></text><text>比分</text><text>胜负</text><text>进球</text></view>
+      <view class="p3row" wx:for="{{vm.rows}}" wx:for-item="r" wx:key="lab">
+        <text class="p3lab {{r.labCls}}">{{r.lab}}</text>
+        <text class="v {{r.vCls}}">{{r.score}}</text>
+        <text class="v {{r.vCls}}">{{r.wl}}</text>
+        <text class="v {{r.vCls}}">{{r.ou}}</text>
+      </view>
+      <view class="p3foot">
+        <text class="conf {{vm.conf}}">信心{{vm.conf}}</text>
+        <text class="dvchip" wx:if="{{vm.dv}}">⚡分歧</text>
+        <text wx:if="{{vm.mark}}" class="mark {{vm.mark.cls}}">{{vm.mark.txt}}</text>
+        <text wx:else class="arrow">详情 ›</text>
+      </view>
+    </view>
+    <view class="pmini" wx:if="{{!vm.hasPred}}"><text class="mn" style="color:var(--mut2)">尚未生成研判</text></view>
+  </view>
+</template>
+
+<view class="wrap">
+  <!-- 顶栏 -->
+  <view class="header">
+    <view class="htop">
+      <text class="logo">2026 世界杯 · <text class="acc">三视角研判</text></text>
+      <text class="upd">{{updTxt}}</text>
+    </view>
+    <view class="hit">
+      <view class="pill" wx:if="{{hit.tot}}">主研判·赢家 <text class="b">{{hit.win}}/{{hit.tot}}</text></view>
+      <view class="pill" wx:if="{{hit.tot}}">比分全中 <text class="b">{{hit.ex}}/{{hit.tot}}</text></view>
+      <view class="pill" wx:if="{{!hit.tot}}">研判将随赛程展开</view>
+      <view class="pill" wx:if="{{hit.climate.played}}">冷门气候 <text class="b" style="color:{{hit.climateHot ? 'var(--red)' : 'var(--mut)'}}">{{hit.climateLbl}}</text> <text class="dim2">{{hit.climate.fails}}/{{hit.climate.played}}热门翻车</text></view>
+    </view>
+  </view>
+
+  <!-- 标签 -->
+  <view class="nav">
+    <view class="tab {{tab==='today'?'on':''}}" data-s="today" bindtap="switchTab">今日比分</view>
+    <view class="tab {{tab==='tmrw'?'on':''}}" data-s="tmrw" bindtap="switchTab">明日研判</view>
+    <view class="tab {{tab==='sched'?'on':''}}" data-s="sched" bindtap="switchTab">赛程</view>
+    <view class="tab {{tab==='stand'?'on':''}}" data-s="stand" bindtap="switchTab">积分</view>
+  </view>
+
+  <!-- 今日 -->
+  <view class="section" wx:if="{{tab==='today'}}">
+    <view class="secttl">{{today.label}}</view>
+    <block wx:if="{{today.cards.length}}">
+      <template is="matchCard" wx:for="{{today.cards}}" wx:for-item="vm" wx:key="iso" data="{{vm: vm}}" />
+    </block>
+    <view class="empty" wx:else><text class="big">今日无赛事</text>看「赛程」查看其他比赛日</view>
+  </view>
+
+  <!-- 明日 -->
+  <view class="section" wx:if="{{tab==='tmrw'}}">
+    <view class="secttl">{{tmrw.label}}</view>
+    <view class="note">每场三条独立研判：① 九维度基本面　② 市场热度　③ 冷门风险。点开看「比分 / 半场·全场胜负 / 进球数」三类对照。</view>
+    <block wx:if="{{tmrw.cards.length}}">
+      <template is="matchCard" wx:for="{{tmrw.cards}}" wx:for-item="vm" wx:key="iso" data="{{vm: vm}}" />
+    </block>
+    <view class="empty" wx:else>暂无赛程</view>
+  </view>
+
+  <!-- 赛程 -->
+  <view class="section" wx:if="{{tab==='sched'}}">
+    <view class="filters">
+      <picker class="pk" mode="selector" range="{{groupOptions}}" value="{{groupIdx}}" bindchange="onGroupChange">
+        <view class="pkbox">{{groupOptions[groupIdx]}} ▾</view>
+      </picker>
+      <input class="inp" placeholder="搜索球队（中/英文）" placeholder-class="phd" value="{{teamQ}}" bindinput="onTeamInput" />
+    </view>
+    <block wx:if="{{sched.length}}">
+      <view class="dayblk" wx:for="{{sched}}" wx:for-item="day" wx:for-index="di" wx:key="date">
+        <view class="daysum" data-i="{{di}}" bindtap="toggleDay">
+          <text class="chev {{day.open?'open':''}}">▸</text>
+          <text class="dl">{{day.label}}</text>
+          <text class="cnt">{{day.count}} 场</text>
+        </view>
+        <view class="daywrap" wx:if="{{day.open}}">
+          <template is="matchCard" wx:for="{{day.cards}}" wx:for-item="vm" wx:key="iso" data="{{vm: vm}}" />
+        </view>
+      </view>
+    </block>
+    <view class="empty" wx:else>无匹配场次</view>
+  </view>
+
+  <!-- 积分 -->
+  <view class="section" wx:if="{{tab==='stand'}}">
+    <view class="secttl">小组积分榜（实时计算）</view>
+    <view class="gtbl" wx:for="{{stand}}" wx:for-item="grp" wx:key="g">
+      <view class="gh"><text class="gl">{{grp.g}} 组</text></view>
+      <view class="trow th">
+        <text class="c0">#</text><text class="c1">球队</text><text>赛</text><text>胜</text><text>平</text><text>负</text><text>进</text><text>失</text><text>净</text><text class="cp">分</text>
+      </view>
+      <view class="trow {{r.qual?'qual':''}}" wx:for="{{grp.rows}}" wx:for-item="r" wx:key="c">
+        <text class="c0 rk {{r.qual?'q':''}}">{{r.rk}}</text>
+        <text class="c1 tm"><text class="tflag">{{r.flag}}</text>{{r.zh}}</text>
+        <text>{{r.p}}</text><text>{{r.w}}</text><text>{{r.d}}</text><text>{{r.l}}</text><text>{{r.gf}}</text><text>{{r.ga}}</text><text>{{r.gdTxt}}</text><text class="cp pts">{{r.pt}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer">
+    数据为内嵌静态资料 · 小奥九维度基本面 × 市场热度 × 冷门风险 三视角研判\n比分以官方为准 · 研判为概率估计非任何投注建议
+  </view>
+</view>
+
+<!-- ===== 详情抽屉 ===== -->
+<view class="ov {{sheetOpen?'on':''}}" bindtap="closeSheet">
+  <view class="sheet" catchtap="noop" wx:if="{{sheet}}">
+    <view class="sheettop">
+      <view class="grab"></view>
+      <view class="sheetclose" catchtap="closeSheet">返回 ✕</view>
+    </view>
+    <view class="mhead"><text class="grp">{{sheet.g}}组</text><text>{{sheet.day}} {{sheet.time}} 北京</text><text class="venue">· {{sheet.v}}</text></view>
+    <view class="mscore">
+      <view class="mteam"><text class="mflag">{{sheet.fA}}</text><text class="nm">{{sheet.zhA}}</text></view>
+      <view class="mbig">{{sheet.big}}<text class="sub">{{sheet.bigSub}}</text></view>
+      <view class="mteam"><text class="mflag">{{sheet.fB}}</text><text class="nm">{{sheet.zhB}}</text></view>
+    </view>
+
+    <block wx:if="{{sheet.hasPred}}">
+      <!-- 三轨对照矩阵 -->
+      <view class="block" wx:if="{{sheet.hasMatrix}}">
+        <view class="bt">{{sheet.hasU ? '三轨' : '双轨'}}研判对照</view>
+        <view class="pmx">
+          <view class="mxr mxh"><text class="mxl">类别</text><text>① 九维</text><text>② 市场</text><text wx:if="{{sheet.hasU}}">③ 冷门</text></view>
+          <view class="mxr {{row.dv?'dv':''}}" wx:for="{{sheet.matrix}}" wx:for-item="row" wx:key="label">
+            <text class="mxl">{{row.label}}</text>
+            <text class="m8">{{row.v8}}</text>
+            <text class="mo">{{row.vo}}</text>
+            <text class="mu" wx:if="{{sheet.hasU}}">{{row.vu}}</text>
+          </view>
+        </view>
+        <view class="upstrip" wx:if="{{sheet.upstrip}}">🎲 <text class="b">冷门概率 {{sheet.upstrip.prob}}%</text> · {{sheet.upstrip.why}}</view>
+      </view>
+
+      <!-- 九维主块 -->
+      <view class="block">
+        <view class="bt">① 九维度研判 · 基本面</view>
+        <view class="predtop">
+          <text class="predmain">{{sheet.nine.score}}</text>
+          <text class="conf {{sheet.nine.conf}}">信心 {{sheet.nine.conf}}</text>
+          <text class="predalt">{{sheet.nine.alt}}</text>
+          <text class="kpi">进球 {{sheet.nine.gk}}</text>
+        </view>
+        <view class="probbar">
+          <view class="pb1" style="flex:{{sheet.nine.prob[0]}}">{{sheet.nine.prob[0]}}%</view>
+          <view class="pbd" style="flex:{{sheet.nine.prob[1]}}">{{sheet.nine.prob[1]}}%</view>
+          <view class="pb2" style="flex:{{sheet.nine.prob[2]}}">{{sheet.nine.prob[2]}}%</view>
+        </view>
+        <view class="problbl"><text>{{sheet.zhA}}胜</text><text>平</text><text>{{sheet.zhB}}胜</text></view>
+        <view class="cmp" wx:if="{{sheet.nine.cmp}}">实际 <text class="ac">{{sheet.nine.cmp.acA}}-{{sheet.nine.cmp.acB}}</text> <text class="vs2">vs 九维研判</text> <text class="pu">{{sheet.nine.cmp.pA}}-{{sheet.nine.cmp.pB}}</text> <text wx:if="{{sheet.nine.cmp.mark}}" class="mark {{sheet.nine.cmp.mark.cls}}">{{sheet.nine.cmp.mark.txt}}</text></view>
+      </view>
+
+      <!-- 市场块 -->
+      <view class="block" wx:if="{{sheet.odds}}">
+        <view class="bt">② 市场热度 · 资金流向走势</view>
+        <view class="predtop">
+          <text class="predmain om2">{{sheet.odds.winText}}</text>
+          <text class="conf {{sheet.odds.conf}}">信心 {{sheet.odds.conf}}</text>
+          <text class="kpi" wx:if="{{sheet.odds.kpiScore}}">比分 {{sheet.odds.kpiScore}}</text>
+          <text class="kpi" wx:if="{{sheet.odds.kpiOu}}">进球 {{sheet.odds.kpiOu}}</text>
+        </view>
+        <view class="probbar">
+          <view class="pb1" style="flex:{{sheet.odds.prob[0]}}">{{sheet.odds.prob[0]}}%</view>
+          <view class="pbd" style="flex:{{sheet.odds.prob[1]}}">{{sheet.odds.prob[1]}}%</view>
+          <view class="pb2" style="flex:{{sheet.odds.prob[2]}}">{{sheet.odds.prob[2]}}%</view>
+        </view>
+        <view class="problbl"><text>{{sheet.zhA}}胜</text><text>平</text><text>{{sheet.zhB}}胜</text></view>
+        <view class="oddsnote">
+          <view>📈 <text class="b">走势</text>：{{sheet.odds.move}}</view>
+          <view>🧠 <text class="b">资金研判</text>：{{sheet.odds.sharp}}</view>
+        </view>
+      </view>
+
+      <!-- 一致/分歧 -->
+      <view class="diverge" wx:if="{{sheet.cross && sheet.cross.type==='diverge'}}">{{sheet.cross.text}}</view>
+      <view class="agree" wx:if="{{sheet.cross && sheet.cross.type==='agree'}}">{{sheet.cross.text}}</view>
+
+      <!-- 九维独立分析 -->
+      <view class="block">
+        <view class="bt">九维度独立分析</view>
+        <view class="dim" wx:for="{{sheet.dims}}" wx:for-item="d" wx:key="name">
+          <text class="dn">{{d.name}}</text>
+          <text class="dnote">{{d.note}}</text>
+          <text class="lean {{d.leanCls}}">{{d.leanTxt}}</text>
+        </view>
+      </view>
+
+      <!-- 裁决 -->
+      <view class="verdict">📌 <text class="b">综合裁决：</text>{{sheet.verdict}}</view>
+    </block>
+
+    <view class="empty" wx:else><text class="big">尚未生成研判</text>对小奥说「预测今天的」<text class="brk"></text>即可为本场跑完整九维度 + 市场 + 冷门三视角分析并回填</view>
+  </view>
+</view>

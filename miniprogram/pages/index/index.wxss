@@ -1,0 +1,186 @@
+/* ===== 跑马灯 ===== */
+.marquee{position:fixed;top:0;left:0;right:0;height:30px;z-index:40;background:#231708;border-bottom:1px solid #5a4a1e;overflow:hidden}
+.mqt{display:flex;align-items:center;height:30px;white-space:nowrap;animation:mq 22s linear infinite}
+.mqt text{padding:0 28px;font-size:12px;font-weight:600;color:#ffce6b;letter-spacing:.3px}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.wrap{padding:30px 14px 60px}
+
+/* ===== 顶栏 ===== */
+.header{padding:14px 0 8px;border-bottom:1px solid var(--line)}
+.htop{display:flex;align-items:center;gap:10px}
+.logo{font-weight:800;font-size:18px}
+.acc{color:var(--acc)}
+.upd{font-size:11px;color:var(--mut2);margin-left:auto}
+.hit{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:5px 10px;font-size:11.5px;color:var(--mut)}
+.pill .b{color:var(--acc);font-size:13px;font-weight:700}
+.dim2{color:var(--mut2)}
+
+/* ===== 标签 ===== */
+.nav{display:flex;gap:6px;margin:10px 0 4px}
+.tab{flex:1;text-align:center;padding:9px 0;background:var(--card);border:1px solid var(--line);border-radius:11px;font-size:13.5px;color:var(--mut);font-weight:600}
+.tab.on{background:var(--acc);color:#06231b;border-color:var(--acc)}
+
+.section{margin-top:12px}
+.secttl{font-size:12px;color:var(--mut2);margin:10px 2px 8px;font-weight:700;letter-spacing:.5px}
+.note{font-size:11.5px;color:var(--mut2);margin:2px 2px 10px;line-height:1.7}
+.empty{text-align:center;color:var(--mut2);font-size:13px;padding:24px 10px;line-height:1.8}
+.empty .big{display:block;font-size:15px;color:var(--mut);font-weight:700;margin-bottom:4px}
+.empty .brk{display:block;height:4px}
+
+/* ===== 比赛卡片 ===== */
+.mc{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;margin-bottom:10px}
+.mc .meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--mut2);margin-bottom:9px}
+.grp{background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:1px 7px;font-weight:700;color:var(--mut)}
+.venue{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px}
+.st{margin-left:auto;font-weight:700;border-radius:6px;padding:1px 8px;font-size:10.5px}
+.st.live{background:rgba(255,90,95,.16);color:#ff7a7e;border:1px solid rgba(255,90,95,.4)}
+.st.ft{background:var(--card2);color:var(--mut);border:1px solid var(--line)}
+.st.up{background:rgba(77,159,255,.12);color:var(--blu);border:1px solid rgba(77,159,255,.3)}
+.row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+.team{display:flex;align-items:center;gap:9px;min-width:0}
+.team.r{flex-direction:row-reverse;text-align:right}
+.flag{font-size:24px;line-height:1}
+.team .nm{font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.score{font-size:23px;font-weight:800;letter-spacing:1px;min-width:64px;text-align:center}
+.score .vs{font-size:13px;color:var(--mut2);font-weight:600}
+.score .sub{font-size:10px;color:var(--mut2);font-weight:600;display:block;margin-top:-2px}
+
+/* 迷你预测（简版） */
+.pmini{font-size:11px;color:var(--mut);margin-top:8px;padding-top:7px;border-top:1px dashed var(--line);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pmini .mn{color:var(--mut)}
+.pmini .om{color:var(--grn);font-size:10.5px}
+.pmini .oup{color:#ff8d90;font-size:10.5px}
+.pmini .mk{font-weight:800;margin-left:auto}
+.pmini .mk.h{color:var(--grn)}
+.pmini .mk.p{color:var(--yel)}
+.pmini .mk.x{color:var(--red)}
+
+/* 三轨徽章（全版） */
+.p3{margin-top:11px;padding-top:10px;border-top:1px dashed var(--line);display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:5px 6px;align-items:center}
+.p3h{display:contents}
+.p3h text{font-size:10px;color:var(--mut2);text-align:center}
+.p3h text:first-child{text-align:left}
+.p3row{display:contents}
+.p3row .v{text-align:center;font-size:12.5px}
+.p3lab{text-align:left;font-size:10.5px;font-weight:700;border-radius:5px;padding:1px 6px}
+.p3lab.e{color:var(--pur);background:rgba(155,135,255,.13)}
+.p3lab.m{color:var(--grn);background:rgba(31,209,160,.13)}
+.p3lab.u{color:var(--red);background:rgba(255,90,95,.13)}
+.v.ve{color:#bcb0ff;font-weight:700}
+.v.vm{color:#62e3c2;font-weight:700}
+.v.vu{color:#ff8d90;font-weight:700}
+.p3foot{grid-column:1/-1;display:flex;align-items:center;gap:8px;margin-top:6px;padding-top:8px;border-top:1px solid var(--line)}
+.conf{font-size:10.5px;padding:2px 7px;border-radius:6px;font-weight:700;background:var(--card2);color:var(--mut)}
+.conf.高{background:rgba(31,209,160,.15);color:var(--grn)}
+.conf.中{background:rgba(255,194,75,.15);color:var(--yel)}
+.conf.中低{background:rgba(255,194,75,.12);color:var(--yel)}
+.conf.低{background:rgba(255,90,95,.15);color:var(--red)}
+.dvchip{font-size:10.5px;font-weight:700;color:var(--yel);background:rgba(255,194,75,.12);border-radius:5px;padding:1px 7px}
+.mark{font-weight:800;font-size:13px;margin-left:auto}
+.mark.h{color:var(--grn)}
+.mark.p{color:var(--yel)}
+.mark.x{color:var(--red)}
+.arrow{font-size:11px;color:var(--mut2);margin-left:auto}
+
+/* ===== 赛程筛选 ===== */
+.filters{display:flex;gap:8px;margin-bottom:10px}
+.pk{flex:1}
+.pkbox{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:9px 11px;font-size:13px}
+.inp{flex:1;background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:9px 11px;font-size:13px;min-width:0}
+.phd{color:var(--mut2)}
+.dayblk{margin-bottom:8px}
+.daysum{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--card);border:1px solid var(--line);border-radius:10px;font-size:13.5px;font-weight:700}
+.daysum .chev{color:var(--mut2);transition:.2s;display:inline-block}
+.daysum .chev.open{transform:rotate(90deg)}
+.daysum .cnt{margin-left:auto;font-size:11px;color:var(--mut2);font-weight:600}
+.daywrap{padding:8px 4px 2px}
+.slim{padding:10px 12px;margin-bottom:7px}
+.slim .team .nm{font-size:14px}
+.slim .flag{font-size:21px}
+.slim .score{font-size:18px;min-width:54px}
+
+/* ===== 积分榜 ===== */
+.gtbl{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.gh{padding:10px 13px;font-size:13px;background:var(--card2);border-bottom:1px solid var(--line)}
+.gl{color:var(--acc);font-weight:800}
+.trow{display:flex;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);font-size:12.5px}
+.trow:last-child{border-bottom:none}
+.trow text{flex:1;text-align:center}
+.trow .c0{flex:0 0 26px;text-align:center}
+.trow .c1{flex:2.4;text-align:left}
+.trow .cp{flex:0 0 34px}
+.trow.th{color:var(--mut2);font-size:10.5px}
+.trow.qual{background:rgba(31,209,160,.05)}
+.rk{color:var(--mut2);font-weight:700}
+.rk.q{color:var(--grn)}
+.tm{display:flex;align-items:center;gap:6px;font-weight:600}
+.tflag{font-size:16px;line-height:1}
+.pts{font-weight:800;color:var(--txt)}
+
+.footer{text-align:center;color:var(--mut2);font-size:11px;margin-top:26px;line-height:1.9;white-space:pre-line}
+
+/* ===== 详情抽屉 ===== */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:flex;align-items:flex-end;justify-content:center;visibility:hidden;opacity:0;transition:opacity .2s}
+.ov.on{visibility:visible;opacity:1}
+.sheet{background:var(--bg2);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding:8px 16px 28px}
+.sheettop{position:sticky;top:0;z-index:6;background:var(--bg2);display:flex;justify-content:center;align-items:center;padding:6px 0 8px}
+.grab{width:40px;height:4px;background:var(--line);border-radius:3px;margin:6px auto 8px}
+.sheetclose{position:absolute;right:0;top:6px;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700}
+.mhead{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--mut2);margin-bottom:10px;flex-wrap:wrap}
+.mscore{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding:6px 0 16px}
+.mteam{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center}
+.mflag{font-size:40px;line-height:1}
+.mteam .nm{font-size:14px;font-weight:700}
+.mbig{font-size:34px;font-weight:800;text-align:center}
+.mbig .sub{display:block;font-size:11px;color:var(--mut2);font-weight:600}
+
+.block{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:11px}
+.bt{font-size:11px;color:var(--mut2);font-weight:700;letter-spacing:.5px;margin-bottom:10px}
+.predtop{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.predmain{font-size:21px;font-weight:800;color:var(--pur)}
+.predmain.om2{color:var(--grn)}
+.predalt{font-size:12px;color:var(--mut)}
+.kpi{font-size:11px;color:var(--mut);background:var(--card2);border:1px solid var(--line);border-radius:7px;padding:3px 9px;font-weight:600}
+.probbar{display:flex;height:30px;border-radius:8px;overflow:hidden;margin:4px 0 6px;font-size:11px;font-weight:700}
+.probbar view{display:flex;align-items:center;justify-content:center;min-width:24px}
+.pb1{background:var(--blu);color:#04152b}
+.pbd{background:var(--mut);color:#06140f}
+.pb2{background:var(--grn);color:#06140f}
+.problbl{display:flex;justify-content:space-between;font-size:10.5px;color:var(--mut2)}
+.cmp{display:flex;gap:8px;align-items:center;font-size:13px;font-weight:700;margin-top:12px;flex-wrap:wrap}
+.cmp .ac{color:var(--acc)}
+.cmp .pu{color:var(--pur)}
+.cmp .vs2{color:var(--mut2);font-size:11px;font-weight:400}
+.oddsnote{font-size:11.5px;color:var(--mut);line-height:1.75;border-top:1px dashed var(--line);padding-top:9px}
+.oddsnote view{margin-bottom:4px}
+.oddsnote .b{color:var(--txt);font-weight:700}
+
+.diverge{background:rgba(255,194,75,.1);border:1px solid rgba(255,194,75,.4);color:var(--yel);border-radius:10px;padding:10px 13px;font-size:12.5px;margin-bottom:11px;line-height:1.6}
+.agree{background:rgba(31,209,160,.08);border:1px solid rgba(31,209,160,.3);color:var(--grn);border-radius:10px;padding:10px 13px;font-size:12.5px;margin-bottom:11px;line-height:1.6}
+
+/* 对照矩阵 */
+.pmx{width:100%}
+.mxr{display:flex;align-items:center;padding:9px 4px;border-bottom:1px solid var(--line);font-size:13px}
+.mxr:last-child{border-bottom:none}
+.mxr text{flex:1;text-align:center}
+.mxr .mxl{flex:1.2;text-align:left;color:var(--mut);font-size:12px}
+.mxr.mxh text{color:var(--mut2);font-size:11px}
+.mxr .m8{color:#bcb0ff;font-weight:700}
+.mxr .mo{color:#62e3c2;font-weight:700}
+.mxr .mu{color:var(--red);font-weight:700}
+.mxr.dv{background:rgba(255,194,75,.08)}
+.mxr.dv .mxl{color:var(--yel)}
+.upstrip{margin-top:10px;background:rgba(255,90,95,.1);border:1px solid rgba(255,90,95,.35);color:#ff9a9d;border-radius:9px;padding:9px 12px;font-size:12px;line-height:1.65}
+.upstrip .b{color:var(--red);font-weight:700}
+
+.dim{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.dim:last-child{border-bottom:none}
+.dim .dn{font-size:12.5px;font-weight:700;width:74px;flex-shrink:0;color:var(--txt)}
+.dim .dnote{font-size:12px;color:var(--mut);flex:1}
+.lean{font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:5px;white-space:nowrap;align-self:flex-start;margin-top:1px}
+.lean.n{background:var(--card2);color:var(--mut2)}
+.lean.t{background:rgba(31,209,160,.14);color:var(--grn)}
+.verdict{font-size:13px;color:var(--txt);line-height:1.7;background:rgba(155,135,255,.08);border:1px solid rgba(155,135,255,.25);border-radius:10px;padding:11px 13px}
+.verdict .b{font-weight:700}

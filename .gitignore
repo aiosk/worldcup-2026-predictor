@@ -1,0 +1,12 @@
+# 密钥/密文 — 永不入库
+*.pem
+*.key
+id_rsa*
+aliyun_ecs*
+.env
+.env.*
+# 临时/系统
+*.bak
+.DS_Store
+node_modules/
+.playwright-mcp/
