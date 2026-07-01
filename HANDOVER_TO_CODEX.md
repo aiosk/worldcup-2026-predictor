@@ -16,6 +16,28 @@
 
 ---
 
+## 0.5 项目获取 & git 工作流（Codex 首次接入）
+
+**仓库（私有）**：`https://github.com/aiosk/worldcup-2026-predictor`
+
+```bash
+git clone https://github.com/aiosk/worldcup-2026-predictor.git ~/Demos/worldcup-2026
+cd ~/Demos/worldcup-2026
+```
+
+**git 工作流（每次维护）**：
+```bash
+git pull                    # 改前先拉，防双机冲突
+# ... 按 §7 改 KNOWN/PRED/部署 ...
+git add -A && git commit -m "R32 回填+评分 7/1"   # 改后提交
+git push                    # 推回远端(留档+另一台机可见)
+```
+> **改前先 commit/pull、改后 commit/push** 是无人值守维护的安全网——出错能 `git checkout .` 回滚。
+
+**⚠ 部署私钥不在仓库里**（安全）。首次接入需单独手动获取 `~/.ssh/aliyun_ecs`（由 Osk 在机器间手动拷），`chmod 600` 后才能部署（见 §8）。仓库 `.gitignore` 已屏蔽 `aliyun_ecs*`/`.env`/`.pem` 等，**切勿把密钥提交进仓库**。
+
+---
+
 ## 1. 你的维护任务（核心）
 
 **淘汰赛阶段每天早上更新一次**（原由 Claude Code 的 cron 触发，移交后由你负责）。每日例程：
