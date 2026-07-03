@@ -399,7 +399,9 @@ const KNOWN={
  "cv|sa":[0,0],
  // R32 (点球淘汰记90/120分钟比分): de|py 1-1巴拉圭点球晋级; nl|ma 1-1摩洛哥点球晋级(荷连续3届点球出局)
  "za|ca":[0,1], "br|jp":[2,1], "de|py":[1,1],
- "nl|ma":[1,1], "ci|no":[1,2], "fr|se":[3,0]
+ "nl|ma":[1,1], "ci|no":[1,2], "fr|se":[3,0],
+ "mx|ec":[2,0], "eng|cd":[2,1], "be|sn":[3,2], // be|sn 加时后比利时晋级
+ "us|ba":[2,0], "es|at":[3,0], "pt|hr":[2,1]
 };
 
 // 九维度预测层。key=队1|队2(同fixture朝向)。pred/prob 均按 [队1,队2] 朝向。
@@ -924,9 +926,10 @@ const PRED={
 let OF={};        // openfootball: sortedKey -> {a,b,ft,ht,g1,g2}
 let dataOk=false;
 let SCORES={};  // scores.json: key -> {s:[h,a], st:"FT"/"1H"...}
+let scoresUpdated=""; // scores.json 更新时间
 async function loadScores(){
   try{const r=await fetch("scores.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)return;
-    const j=await r.json();const o={};Object.keys(j).forEach(k=>{if(k.charAt(0)!=="_")o[k]=j[k];});SCORES=o;
+    const j=await r.json();scoresUpdated=j._updated||"";const o={};Object.keys(j).forEach(k=>{if(k.charAt(0)!=="_")o[k]=j[k];});SCORES=o;
   }catch(e){}
 }
 function liveSt(a,b){const s=SCORES[a+"|"+b]||SCORES[b+"|"+a];return s?s.st:null;}
@@ -1228,8 +1231,17 @@ function closeSheet(){if(history.state&&history.state.wcSheet){history.back();}e
 window.addEventListener("popstate",()=>{if(el("ov").classList.contains("on"))closeSheetUI();});
 
 /* ===================== 事件 & 初始化 ===================== */
+function parseUpdateStamp(s){
+  const m=String(s||"").match(/(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/);
+  return m?new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5]).getTime():0;
+}
+function updateLabel(){
+  const items=[scoresUpdated,oddsUpdated].filter(Boolean).sort((a,b)=>parseUpdateStamp(b)-parseUpdateStamp(a));
+  if(items[0])return "数据更新于 "+items[0].replace(/\s*\(.+\)\s*$/,"");
+  return "加载中…";
+}
 function renderAll(){renderToday();renderTomorrow();renderSched();renderStand();renderHit();
-  el("upd").textContent="数据更新于 "+pad(bjNow().getHours())+":"+pad(bjNow().getMinutes())+(dataOk?"":" · 缓存");
+  el("upd").textContent=updateLabel()+(dataOk?"":" · 缓存");
   el("banner").style.display=dataOk?"none":"block";}
 function fillGroups(){const gs=[...new Set(FX.map(f=>f[1]))];const go=gs.filter(g=>!isKO(g)).sort().map(g=>`<option value="${g}">${g} 组</option>`).join("");const ko=["R32","R16","QF","SF","P3","FIN"].filter(r=>gs.includes(r)).map(r=>`<option value="${r}">${KO[r]}</option>`).join("");el("fgrp").innerHTML='<option value="">全部</option>'+go+ko;}
 
