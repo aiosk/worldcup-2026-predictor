@@ -189,20 +189,35 @@ GET https://t0nif2phaxz.aiforce.cloud/app/app_179er0n0zcj/__refresh?token=...
 
 **API key 已无用途**——如需彻底清理可从妙搭 env 删除。不要在文档/提交中明文写 key。
 
-## 落地到线上妙搭（执行机操作 · 方案 1-A）
+## 落地到线上妙搭（方案 1-A · MacBook 本机即可发布）
 
-本轮改动全部落在 GitHub 主仓库（`index.html` + `data.js` + `scripts/`）。执行机同步到妙搭：
+**关键前提**：worldcup 妙搭 app 在**个人飞书账号**（lark-cli profile `cli_aa846e69fef8dcc5` / user "Osk"），
+不是不息 `buxi`(吴旭君) 账号。默认 profile 下 `get workspace id failed by app id` 是正常的
+（不息账号看不到个人 app）——不是没权限，是**用错了 profile**。
 
-1. `git pull`（主仓库）拿到最新 `index.html`（含 openfootball 客户端层 + KO 晋级逻辑）。
-2. `cp index.html → 妙搭 server/assets/dashboard.html`。
-3. **⚠ 与旧流程不同**：1-A 下**不要**再把比分改回 `__scores`——保留 `loadOF()` 直取
-   openfootball 即可。`__odds`/`__scores`/`__refresh`/API-Football env/GitHub Actions
-   `miaoda-refresh.yml` 都可以停用/删除（scores.json 404 已被 `loadScores()` catch，无害）。
-4. `npm run build:server` → push `sprint/default` → `lark-cli apps +release-create`。
-5. 验证：打开线上页，详情页看 `be|sn` 显示 2-2 且注"比利时 加时 3-2 晋级"，命中率条正常。
+从 MacBook 发布妙搭的完整流程：
 
-注：本机（MacBook 方案机）lark-cli/miaoda 解析不到该妙搭 app 的 workspace
-（`get workspace id failed by app id`），故妙搭前端替换必须在执行机做。
+1. **授权个人 profile**（user token 会过期，需重授）：
+   `lark-cli auth login --profile cli_aa846e69fef8dcc5 --no-wait --json --domain apps`
+   → 拿 verification_url + device_code → 生成二维码给 Osk 授权 → `--device-code <code>` 完成。
+2. **切默认 profile**（关键：`--profile` 标志在部分子命令不生效、且 `+init` 内部 git 步骤不传递，
+   必须切默认而非靠 `--profile`）：`lark-cli profile use cli_aa846e69fef8dcc5`
+3. **克隆 fullstack 源码**（若本机没有）：
+   `lark-cli apps +init --app-id app_179er0n0zcj --dir ~/Demos/worldcup-2026-miaoda-fullstack`
+   （git 在 miaoda-git.feishu.cn，branch `sprint/default`）
+4. **同步资产**（1-A 下**不要**恢复 `__scores`——保留 `loadOF()` 直取 openfootball）：
+   `cp ~/Demos/worldcup-2026/index.html server/assets/dashboard.html`
+   `cp ~/Demos/worldcup-2026/miniprogram/utils/data.js server/assets/data.js`
+5. **推送 + 发布**（`dist/` 在 .gitignore → 妙搭服务端构建，无需本地 `npm run build`）：
+   `git push origin sprint/default`
+   `lark-cli apps +release-create --app-id app_179er0n0zcj`
+   → `lark-cli apps +release-get --app-id app_179er0n0zcj --release-id <id>` 轮询到 `finished`
+6. **还原默认 profile**：`lark-cli profile use buxi`
+7. 验证：`curl` 线上页 grep `十一维`/`be|sn":[2,2]`，或浏览器看详情页 `be|sn` 显示 2-2 且注
+   "比利时 加时 3-2 晋级"，命中率条正常，`OF` 已 loaded。
+
+（`__odds`/`__scores`/`__refresh`/API-Football env/GitHub Actions `miaoda-refresh.yml` 在 1-A 下
+都可停用/删除；`scores.json` 404 已被 `loadScores()` catch，无害。）
 
 ## 常用命令
 
