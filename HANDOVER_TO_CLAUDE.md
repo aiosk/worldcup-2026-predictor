@@ -161,21 +161,48 @@ GET https://t0nif2phaxz.aiforce.cloud/app/app_179er0n0zcj/__refresh?token=...
 - 妙搭自定义后端接口线上只稳定支持 `GET + 非 /api 路径`。
 - 不要改成 POST 或 `/api/*`，否则线上网关可能返回 SPA HTML 或 404。
 
-## API Key 状态
+## 数据源：openfootball（2026-07-04 决策 A2，已取代 API-Football）
 
-用户曾提供 `APIFOOTBALL_KEY`，已写入妙搭 env。但最近调用 API-Football 返回过：
+**结论：比分数据源改为 openfootball，彻底弃用 API-Football。**
 
-```text
-Invalid API key
-```
+排查过程：
+- `APIFOOTBALL_KEY` 本身**有效**（账号 xjwu1018@gmail.com，Free 套餐 active 到 2027-06-14）。
+- 之前的 `Invalid API key` 是**调用方式错**（用了 RapidAPI host/header；正确应走
+  `https://v3.football.api-sports.io` + header `x-apisports-key`）。
+- 但真正的硬墙：**Free 套餐拿不到 2026 赛季**——`"Free plans do not have access to
+  this season, try from 2022 to 2024."`。fixtures 和 odds 都被墙。付费才行。
 
-因此自动赔率/比分刷新如果后续无数据更新，优先检查：
+因此不再为 15 场淘汰赛养付费 API，改用 **openfootball**（免 key、CORS 友好、完整覆盖
+2026 含全部淘汰赛、结构化 ft/ht/et/p）：
 
-- key 是否正确；
-- API-Football 套餐是否支持 fixtures / odds；
-- 是否使用了正确 API 服务商和 endpoint。
+- **比分**：`index.html` / `dashboard.html` 客户端 `loadOF()` 直接 fetch
+  `https://cdn.jsdelivr.net/gh/openfootball/worldcup.json@master/2026/worldcup.json`
+  （回退 raw.githubusercontent），实时覆盖，无需后端/DB/cron。
+- **赔率 / 爆冷轨**：不再自动拉盘口，改由内嵌 `PRED[].odds` 手工维护（本就是小奥分析的价值所在）。
+- **点球/加时晋级方**：openfootball `score.et` / `score.p` 自动带出；内嵌 `KOADV` 兜底离线。
 
-不要在文档或提交中明文写出 API key。
+比分口径（决策 2）：统一显示 **ft(90分)** 比分，淘汰赛晋级方另由 et/p 判定并在详情页注明
+（如 `be|sn` 显示 2-2，注"比利时 加时 3-2 晋级"）。命中率的"赢家"判定对淘汰赛按晋级方
+（`awKO()`），修好了历史点球场被误判为平局漏计的老 bug。
+
+校验/再生成工具：`node scripts/sync-openfootball.js`（`--emit` 打印可粘贴的 KNOWN/KOADV）。
+
+**API key 已无用途**——如需彻底清理可从妙搭 env 删除。不要在文档/提交中明文写 key。
+
+## 落地到线上妙搭（执行机操作 · 方案 1-A）
+
+本轮改动全部落在 GitHub 主仓库（`index.html` + `data.js` + `scripts/`）。执行机同步到妙搭：
+
+1. `git pull`（主仓库）拿到最新 `index.html`（含 openfootball 客户端层 + KO 晋级逻辑）。
+2. `cp index.html → 妙搭 server/assets/dashboard.html`。
+3. **⚠ 与旧流程不同**：1-A 下**不要**再把比分改回 `__scores`——保留 `loadOF()` 直取
+   openfootball 即可。`__odds`/`__scores`/`__refresh`/API-Football env/GitHub Actions
+   `miaoda-refresh.yml` 都可以停用/删除（scores.json 404 已被 `loadScores()` catch，无害）。
+4. `npm run build:server` → push `sprint/default` → `lark-cli apps +release-create`。
+5. 验证：打开线上页，详情页看 `be|sn` 显示 2-2 且注"比利时 加时 3-2 晋级"，命中率条正常。
+
+注：本机（MacBook 方案机）lark-cli/miaoda 解析不到该妙搭 app 的 workspace
+（`get workspace id failed by app id`），故妙搭前端替换必须在执行机做。
 
 ## 常用命令
 

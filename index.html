@@ -391,7 +391,7 @@ const KNOWN={
  "es|sa":[4,0], "be|ir":[0,0], "uy|cv":[2,2], "nz|eg":[1,3],
  "ar|at":[2,0], "fr|iq":[3,0], "no|sn":[3,2], "jo|dz":[1,2],
  "pt|uz":[5,0], "eng|gh":[0,0], "pa|hr":[0,1], "co|cd":[1,0],
- "ch|ca":[3,1], "ba|qa":[3,1], "gb-sct|br":[0,3], "ma|ht":[4,2], "cz|mx":[0,3], "za|kr":[1,0],
+ "ch|ca":[2,1], "ba|qa":[3,1], "gb-sct|br":[0,3], "ma|ht":[4,2], "cz|mx":[0,3], "za|kr":[1,0],
  "tr|us":[3,2], "py|au":[0,0], "cw|ci":[0,2], "ec|de":[2,1], "jp|se":[1,1], "tn|nl":[1,3],
  "no|fr":[1,4], "sn|iq":[5,0], "uy|es":[0,1],
  "eg|ir":[1,1], "nz|be":[1,5],
@@ -400,10 +400,10 @@ const KNOWN={
  // R32 (点球淘汰记90/120分钟比分): de|py 1-1巴拉圭点球晋级; nl|ma 1-1摩洛哥点球晋级(荷连续3届点球出局)
  "za|ca":[0,1], "br|jp":[2,1], "de|py":[1,1],
  "nl|ma":[1,1], "ci|no":[1,2], "fr|se":[3,0],
- "mx|ec":[2,0], "eng|cd":[2,1], "be|sn":[3,2], // be|sn 加时后比利时晋级
+ "mx|ec":[2,0], "eng|cd":[2,1], "be|sn":[2,2], // 90分2-2, 加时3-2比利时晋级(晋级方见OF et/p)
  "us|ba":[2,0], "es|at":[3,0], "pt|hr":[2,1],
  "ch|dz":[2,0], "au|eg":[1,1], // au|eg 点球埃及晋级
- "ar|cv":[3,2], "co|gh":[1,0] // ar|cv 加时后阿根廷晋级
+ "ar|cv":[1,1], "co|gh":[1,0] // ar|cv 90分1-1, 加时3-2阿根廷晋级(晋级方见OF et/p)
 };
 
 // 九维度预测层。key=队1|队2(同fixture朝向)。pred/prob 均按 [队1,队2] 朝向。
@@ -1018,6 +1018,36 @@ function scorers(a,b){
   const for1=o.a===a?o.g1:o.g2, for2=o.a===a?o.g2:o.g1;
   return [for1,for2];
 }
+// 淘汰赛晋级方(朝向无关): 90分平则看加时/点球; 返回 {code,how,label} 或 null
+function adv(a,b){
+  const o=OF[sk(a,b)]; if(!o||!o.ft)return null;
+  const ft=o.ft; if(ft[0]!==ft[1])return null; // 90分钟已分胜负,无需注明
+  if(o.et&&o.et[0]!==o.et[1]){const w=o.et[0]>o.et[1]?o.a:o.b;return {code:w,how:"aet",label:"加时 "+Math.max(o.et[0],o.et[1])+"-"+Math.min(o.et[0],o.et[1])+" 晋级"};}
+  if(o.p&&o.p[0]!==o.p[1]){const w=o.p[0]>o.p[1]?o.a:o.b;return {code:w,how:"pen",label:"点球 "+Math.max(o.p[0],o.p[1])+"-"+Math.min(o.p[0],o.p[1])+" 晋级"};}
+  return null;
+}
+// 淘汰赛点球/加时晋级方兜底(离线可用; OF et/p 为未来自动源)。key朝向无关
+const KOADV={"de|py":"py","nl|ma":"ma","au|eg":"eg","be|sn":"be","ar|cv":"ar"};
+function advCode(a,b){
+  if(KOADV[a+"|"+b])return KOADV[a+"|"+b];
+  if(KOADV[b+"|"+a])return KOADV[b+"|"+a];
+  const r=adv(a,b);return r?r.code:null;
+}
+function isKOpair(a,b){const f=FX.find(x=>(x[2]===a&&x[3]===b)||(x[2]===b&&x[3]===a));return f?isKO(f[1]):false;}
+// 用于"赢家/晋级"判定的结果符号: 90分平且为淘汰赛→按晋级方; 否则按比分
+function awKO(a,b){
+  const ac=actual(a,b);if(!ac)return null;
+  const base=Math.sign(ac[0]-ac[1]);if(base!==0)return base;
+  if(isKOpair(a,b)){const w=advCode(a,b);if(w)return w===a?1:-1;}
+  return 0;
+}
+// 淘汰赛平局(点球/加时)时的晋级说明文本, 否则空
+function advDesc(a,b){
+  if(!isKOpair(a,b))return "";
+  const w=advCode(a,b);if(!w)return "";
+  const r=adv(a,b);
+  return ZH[w]+(r?" "+r.label:" 晋级");
+}
 
 async function loadOF(){
   const urls=[
@@ -1035,7 +1065,7 @@ async function loadOF(){
         const c1=N2C[norm(m.team1?.name||m.team1)], c2=N2C[norm(m.team2?.name||m.team2)];
         if(!c1||!c2)return;
         const s=m.score||{};
-        OF[sk(c1,c2)]={a:c1,b:c2,ft:s.ft||null,ht:s.ht||null,
+        OF[sk(c1,c2)]={a:c1,b:c2,ft:s.ft||null,ht:s.ht||null,et:s.et||null,p:s.p||null,
           g1:(m.goals1||m.goals?.filter(g=>g.team===1))?.map(g=>g.name||g.player)||null,
           g2:(m.goals2||m.goals?.filter(g=>g.team===2))?.map(g=>g.name||g.player)||null};
       });
@@ -1098,7 +1128,7 @@ function predBadge(a,b){
 function predMini(a,b){
   const p=pred(a,b); if(!p)return "";
   const ac=actual(a,b); let mk="";
-  if(ac){const pw=Math.sign(p.pred[0]-p.pred[1]),aw=Math.sign(ac[0]-ac[1]);
+  if(ac){const pw=Math.sign(p.pred[0]-p.pred[1]),aw=awKO(a,b);
     const exact=p.pred[0]===ac[0]&&p.pred[1]===ac[1];
     mk=exact?'<span class="mk h">✓全中</span>':(pw===aw?'<span class="mk p">◐赢家对</span>':'<span class="mk x">✗未中</span>');}
   const e=`<span>十一维 <b>${p.pred[0]}-${p.pred[1]}</b>·${wlScore(a,b,p.pred)}·${ouZh(gTot(p.pred))}</span>`;
@@ -1108,7 +1138,7 @@ function predMini(a,b){
 }
 function markHTML(a,b){
   const p=pred(a,b), ac=actual(a,b); if(!p||!ac)return `<span class="arrow" style="margin-left:auto">详情 ›</span>`;
-  const pw=Math.sign(p.pred[0]-p.pred[1]), aw=Math.sign(ac[0]-ac[1]);
+  const pw=Math.sign(p.pred[0]-p.pred[1]), aw=awKO(a,b);
   const exact=p.pred[0]===ac[0]&&p.pred[1]===ac[1];
   if(exact)return `<span class="mark h">✓ 全中</span>`;
   if(pw===aw)return `<span class="mark p">◐ 赢家对</span>`;
@@ -1199,7 +1229,7 @@ function renderHit(){
   let mTot=0,mWin=0,mEx=0;         // 市场轨：favorite 赢家 / 市场比分线(x.os)全中
   let uOccur=0,uWin=0,uEx=0;       // 爆冷轨：翻车场方向命中 / 翻车场比分全中
   FX.forEach(f=>{const p=pred(f[2],f[3]),ac=actual(f[2],f[3]);if(!p||!ac)return;
-    const aw=Math.sign(ac[0]-ac[1]);
+    const aw=awKO(f[2],f[3]);
     tot++;const pw=Math.sign(p.pred[0]-p.pred[1]);
     if(pw===aw)win++;if(p.pred[0]===ac[0]&&p.pred[1]===ac[1])ex++;
     if(p.odds&&p.odds.winner){const w=p.odds.winner;mTot++;
@@ -1236,7 +1266,7 @@ function openSheet(a,b,iso){
   const mteam=c=>ZH[c]?`<div class="mteam"><img src="${flagUrl(c)}" alt=""><span class="nm">${ZH[c]}</span></div>`:`<div class="mteam ko"><span class="nm">${koLabel(c)}</span></div>`;
   const scoreBlk=`<div class="mscore">
     ${mteam(a)}
-    <div class="mbig">${ac?ac[0]+" - "+ac[1]:fxTime(iso)}<small>${ac?(st==="live"?"进行中·比分待官方":"全场"):"未开赛"}</small></div>
+    <div class="mbig">${ac?ac[0]+" - "+ac[1]:fxTime(iso)}<small>${ac?(st==="live"?"进行中·比分待官方":"全场"+(advDesc(a,b)?" · "+advDesc(a,b):"")):"未开赛"}</small></div>
     ${mteam(b)}</div>`;
   const scBlk=(sct&&(sct[0].length||sct[1].length))?`<div class="gscorer">⚽ ${(sct[0].join("、")||"—")} ｜ ${(sct[1].join("、")||"—")}</div>`:"";
   let body="";
