@@ -6,6 +6,7 @@ on:
   schedule:
     # 北京时间 09:00 / 11:00 / 18:00 (UTC 01/03/10)
     - cron: "0 1,3,10 * * *"
+    - cron: "25,30,35 6 * * *"   # 临时·验证定时调度是否无人值守自触发(测完删)
   workflow_dispatch: {}
 
 permissions:
