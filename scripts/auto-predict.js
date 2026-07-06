@@ -167,21 +167,42 @@ async function main() {
     return;
   }
 
-  // 找"已解析真实球队、KO、且尚未预测"的场次(openfootball 已把 wN 换成真实队名)。
-  // openfootball 与内嵌 FX 的 KO 场次按 round 内顺序(bracket 序)一一配对 → 拿 FX 的 iso/venue + OF 的真实球队。
-  const ROUNDMAP = { "Round of 16": "R16", "Quarter-final": "QF", "Semi-final": "SF", "Match for third place": "P3", "Final": "FIN" };
-  const ofByRound = {}, fxByRound = {};
-  of.matches.forEach(m => { const r = ROUNDMAP[m.round]; if (r) (ofByRound[r] = ofByRound[r] || []).push(m); });
+  // 自解析 bracket(不等 openfootball 更新 QF 签位): 从 openfootball 已完赛 KO 的 ft/et/p 定晋级方,
+  // 再按 FX 的 wN 槽位(R16=match89-96, QF=97-100, SF=101-102)逐轮解析真实球队。
+  const ofByPair = {};
+  of.matches.forEach(m => {
+    const c1 = code(m, 1), c2 = code(m, 2), s = m.score; if (!c1 || !c2 || !s || !s.ft) return;
+    let w; const ft = s.ft;
+    if (ft[0] !== ft[1]) w = ft[0] > ft[1] ? c1 : c2;
+    else if (s.et && s.et[0] !== s.et[1]) w = s.et[0] > s.et[1] ? c1 : c2;
+    else if (s.p && s.p[0] !== s.p[1]) w = s.p[0] > s.p[1] ? c1 : c2;
+    if (w) ofByPair[[c1, c2].sort().join("~")] = { a: c1, b: c2, w };
+  });
+  const fxByRound = {};
   d.FX.forEach(f => { if (ROUND_ZH[f[1]]) (fxByRound[f[1]] = fxByRound[f[1]] || []).push(f); });
+  const resolved = { R16: [], QF: [], SF: [], P3: [], FIN: [] };
+  (fxByRound.R16 || []).forEach(f => resolved.R16.push({ a: f[2], b: f[3] })); // R16 内嵌已是真实球队
+  function slotTeam(slot) {
+    if (/^[a-z]{2}(-[a-z]+)?$/.test(slot) && d.ZH[slot]) return slot; // 已是真实 code
+    const m = slot.match(/^([wl])(\d+)$/); if (!m) return null;
+    const num = +m[2]; let rk, idx;
+    if (num >= 89 && num <= 96) { rk = "R16"; idx = num - 89; }
+    else if (num >= 97 && num <= 100) { rk = "QF"; idx = num - 97; }
+    else if (num >= 101 && num <= 102) { rk = "SF"; idx = num - 101; }
+    else return null;
+    const g = resolved[rk][idx]; if (!g || !g.a || !g.b) return null;      // feeder 未解析
+    const adv = ofByPair[[g.a, g.b].sort().join("~")]; if (!adv) return null; // feeder 未打完
+    return m[1] === "w" ? adv.w : (adv.w === g.a ? g.b : g.a);
+  }
   const todo = [];
-  ["R16", "QF", "SF", "P3", "FIN"].forEach(rk => {
-    const ofs = ofByRound[rk] || [], fxs = fxByRound[rk] || [];
-    ofs.forEach((m, i) => {
-      const c1 = code(m, 1), c2 = code(m, 2); if (!c1 || !c2) return; // 仍是 W89 占位 → 跳过
-      const key = c1 + "|" + c2, keyR = c2 + "|" + c1;
+  ["QF", "SF", "P3", "FIN"].forEach(rk => {
+    (fxByRound[rk] || []).forEach((f, idx) => {
+      const a = slotTeam(f[2]), b = slotTeam(f[3]);
+      if (!a || !b) return;                     // 任一 feeder 未定 → 跳过
+      resolved[rk][idx] = { a, b };             // 供下一轮解析
+      const key = a + "|" + b, keyR = b + "|" + a;
       if (have.has(key) || have.has(keyR)) return;
-      const fx = fxs[i] || [];
-      todo.push({ key, a: c1, b: c2, round: rk, iso: fx[0] || "", venue: fx[4] || "中立场" });
+      todo.push({ key, a, b, round: rk, iso: f[0], venue: f[4] || "中立场" });
     });
   });
 
