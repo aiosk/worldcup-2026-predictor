@@ -1078,6 +1078,27 @@ async function loadOF(){
   return false;
 }
 
+// 预测覆盖层(云端 GitHub Actions 用 λ+DeepSeek 生成的下一轮预测)。含 fx(解析 wN 签位)+ preds。
+let predOverlayAt="";
+async function loadPredOverlay(){
+  const urls=[
+    "https://raw.githubusercontent.com/aiosk/worldcup-2026-predictor/main/pred-overlay.json",
+    "https://cdn.jsdelivr.net/gh/aiosk/worldcup-2026-predictor@main/pred-overlay.json"
+  ];
+  for(const u of urls){
+    try{
+      const r=await fetch(u+"?t="+Date.now(),{cache:"no-store"}); if(!r.ok)continue;
+      const j=await r.json();
+      if(j.fx)Object.keys(j.fx).forEach(key=>{const [a,b]=key.split("|"),o=j.fx[key];
+        const row=FX.find(f=>f[1]===o.round&&f[0]===o.iso); if(row){row[2]=a;row[3]=b;if(o.venue)row[4]=o.venue;}});
+      if(j.preds)Object.keys(j.preds).forEach(key=>{PRED[key]=j.preds[key];});
+      if(j._log&&j._log.length)predOverlayAt=j._log[j._log.length-1].at||"";
+      return true;
+    }catch(e){}
+  }
+  return false;
+}
+
 /* ===================== 时间/状态 ===================== */
 function bjNow(){const n=new Date();return new Date(n.getTime()+(n.getTimezoneOffset()*60000)+8*3600000);}
 const pad=n=>String(n).padStart(2,"0");
@@ -1343,12 +1364,12 @@ document.addEventListener("click",e=>{
 });
 el("fgrp").addEventListener("change",renderSched);
 el("fteam").addEventListener("input",renderSched);
-el("rf").addEventListener("click",async()=>{el("rf").textContent="↻ 刷新中";await Promise.all([loadOF(),loadOdds(),loadScores()]);renderAll();el("rf").textContent="↻ 刷新";});
+el("rf").addEventListener("click",async()=>{el("rf").textContent="↻ 刷新中";await Promise.all([loadOF(),loadOdds(),loadScores(),loadPredOverlay()]);renderAll();el("rf").textContent="↻ 刷新";});
 
 function anyLive(){const now=Date.now();return FX.some(f=>{const k=new Date(f[0]).getTime();return now>=k && now<=k+2.6*3600000;});}
-(async()=>{fillGroups();renderAll();await Promise.all([loadOF(),loadOdds(),loadScores()]);renderAll();
+(async()=>{fillGroups();renderAll();await Promise.all([loadOF(),loadOdds(),loadScores(),loadPredOverlay()]);renderAll();
   // 只在有比赛进行中时每30分钟读一次（读的是服务器静态文件，不耗API配额）；无直播比赛则不轮询，手动「刷新」随时可用
-  setInterval(async()=>{if(!anyLive())return;await Promise.all([loadOF(),loadOdds(),loadScores()]);renderAll();},1800000);})();
+  setInterval(async()=>{if(!anyLive())return;await Promise.all([loadOF(),loadOdds(),loadScores(),loadPredOverlay()]);renderAll();},1800000);})();
 </script>
 </body>
 </html>

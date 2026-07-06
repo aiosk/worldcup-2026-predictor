@@ -1,0 +1,41 @@
+name: Auto Predict (λ + DeepSeek)
+
+# 云端大脑:淘汰赛每轮打完 → λ+DeepSeek 生成下一轮预测 → 写 pred-overlay.json。
+# 前端(妙搭 dashboard.html)通过 CDN fetch 该文件, 无需重新部署。完全脱离本机。
+on:
+  schedule:
+    # 北京时间 09:00 / 11:00 / 18:00 (UTC 01/03/10)
+    - cron: "0 1,3,10 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: auto-predict
+  cancel-in-progress: false
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: 生成下一轮预测(仅在有新解析场次时写文件)
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: node scripts/auto-predict.js
+      - name: 有变更则提交
+        run: |
+          git config user.name "worldcup-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if ! git diff --quiet pred-overlay.json PREDICTIONS.md; then
+            git add pred-overlay.json PREDICTIONS.md
+            git commit -m "auto: 下一轮预测 λ+DeepSeek ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git push
+            echo "✅ 已提交新预测"
+          else
+            echo "ℹ️ 无新解析场次, 预测保持现状"
+          fi
