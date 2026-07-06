@@ -5,8 +5,7 @@ name: Auto Predict (λ + DeepSeek)
 on:
   schedule:
     # 北京时间 09:00 / 11:00 / 18:00 (UTC 01/03/10)
-    - cron: "0 1,3,10 * * *"
-    - cron: "25,30,35 6 * * *"   # 临时·验证定时调度是否无人值守自触发(测完删)
+    - cron: "0 1,3,10 * * *"   # 北京 09/11/18(实际因GitHub低活跃仓库降优先级会延迟1.5-4h,对预测无影响)
   workflow_dispatch: {}
 
 permissions:
