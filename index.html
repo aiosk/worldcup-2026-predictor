@@ -406,7 +406,7 @@ const KNOWN={
  "ar|cv":[1,1], "co|gh":[1,0], // ar|cv 90分1-1, 加时3-2阿根廷晋级(晋级方见OF et/p)
  // R16 (7/5起)
  "ca|ma":[0,3], "py|fr":[0,1], // 摩洛哥3-0 / 法国1-0, 均90分钟
- "br|no":[1,2] // 挪威2-1爆冷淘巴西(Haaland), 90分钟
+ "br|no":[1,2], "mx|eng":[2,3] // 挪威2-1爆冷淘巴西 / 英格兰3-2淘墨西哥, 90分钟
 };
 
 // 九维度预测层。key=队1|队2(同fixture朝向)。pred/prob 均按 [队1,队2] 朝向。
@@ -1054,8 +1054,8 @@ function advDesc(a,b){
 
 async function loadOF(){
   const urls=[
-   "https://cdn.jsdelivr.net/gh/openfootball/worldcup.json@master/2026/worldcup.json",
-   "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json"
+   "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
+   "https://cdn.jsdelivr.net/gh/openfootball/worldcup.json@master/2026/worldcup.json"
   ];
   for(const u of urls){
     try{
