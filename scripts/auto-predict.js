@@ -112,16 +112,26 @@ function buildPrompt(a, b, ctx, lam) {
 dims 规则: code 只能是 "${a}"/"${b}"/""(中性); 每维 note ≥50字, 含①具体(球员+俱乐部/身价/真实数字)②机制(为何影响本场)③用**加粗**写一句胜负手/所以呢/盲区. 控球率维注明"控球≠强弱". 无实时伤病源就写"需赛前核实+谁缺阵会怎样", 不硬编。中文。`;
 }
 async function genDims(a, b, ctx, lam) {
-  const r = await postDeepSeek({
-    model: "deepseek-chat",
-    messages: [{ role: "system", content: "你输出严格JSON,不带markdown代码围栏,不带任何解释。" }, { role: "user", content: buildPrompt(a, b, ctx, lam) }],
-    temperature: 0.6, max_tokens: 3000,
-  });
-  if (r.error) throw new Error("DeepSeek: " + JSON.stringify(r.error));
-  let txt = r.choices[0].message.content.trim().replace(/^```json\s*/i, "").replace(/```$/, "").trim();
-  const obj = JSON.parse(txt);
-  if (!Array.isArray(obj.dims) || obj.dims.length !== 11) throw new Error("dims 非11项: " + (obj.dims || []).length);
-  return obj;
+  let lastErr;
+  for (let attempt = 1; attempt <= 3; attempt++) {   // DeepSeek 偶尔返回非11维/坏JSON → 重试(新调用),末次容错
+    try {
+      const r = await postDeepSeek({
+        model: "deepseek-chat",
+        messages: [{ role: "system", content: "你输出严格JSON,不带markdown代码围栏,不带任何解释。dims 必须恰好11项。" }, { role: "user", content: buildPrompt(a, b, ctx, lam) }],
+        temperature: 0.6, max_tokens: 3000,
+      });
+      if (r.error) throw new Error("DeepSeek: " + JSON.stringify(r.error));
+      let txt = r.choices[0].message.content.trim().replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
+      const obj = JSON.parse(txt);
+      if (!Array.isArray(obj.dims)) throw new Error("dims 不是数组");
+      let dims = obj.dims.map(x => Array.isArray(x) ? [x[0] || "", String(x[1] || "")] : [x.code || "", String(x.note || "")]);
+      if (dims.length > 11 && attempt === 3) dims = dims.slice(0, 11); // 末次仍多返回→取前11(按DIMS顺序)
+      if (dims.length !== 11) throw new Error("dims 非11项: " + dims.length);
+      obj.dims = dims;
+      return obj;
+    } catch (e) { lastErr = e; console.log("  ↻ genDims 第" + attempt + "次失败:", e.message); }
+  }
+  throw lastErr;
 }
 
 /* ---------- 组装 PRED ---------- */
