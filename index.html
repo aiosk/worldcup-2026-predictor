@@ -407,7 +407,8 @@ const KNOWN={
  // R16 (7/5起)
  "ca|ma":[0,3], "py|fr":[0,1], // 摩洛哥3-0 / 法国1-0, 均90分钟
  "br|no":[1,2], "mx|eng":[2,3], // 挪威2-1爆冷淘巴西 / 英格兰3-2淘墨西哥, 90分钟
- "es|pt":[1,0], "be|us":[4,1] // 西班牙1-0淘葡萄牙 / 比利时4-1血洗美国, 90分钟
+ "es|pt":[1,0], "be|us":[4,1], // 西班牙1-0淘葡萄牙 / 比利时4-1血洗美国, 90分钟
+ "eg|ar":[2,3], "ch|co":[0,0] // 阿根廷3-2淘埃及 / ch-co 90分0-0,点球4-3瑞士晋级
 };
 
 // 九维度预测层。key=队1|队2(同fixture朝向)。pred/prob 均按 [队1,队2] 朝向。
@@ -1031,7 +1032,7 @@ function adv(a,b){
   return null;
 }
 // 淘汰赛点球/加时晋级方兜底(离线可用; OF et/p 为未来自动源)。key朝向无关
-const KOADV={"de|py":"py","nl|ma":"ma","au|eg":"eg","be|sn":"be","ar|cv":"ar"};
+const KOADV={"de|py":"py","nl|ma":"ma","au|eg":"eg","be|sn":"be","ar|cv":"ar","ch|co":"ch"};
 function advCode(a,b){
   if(KOADV[a+"|"+b])return KOADV[a+"|"+b];
   if(KOADV[b+"|"+a])return KOADV[b+"|"+a];
